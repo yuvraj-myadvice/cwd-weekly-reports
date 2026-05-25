@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWD Weekly Report — May 4–10, 2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; font-size: 13px; }
+  .page { max-width: 980px; margin: 0 auto; padding: 28px 32px; }
+
+  /* Header */
+  .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; border-bottom: 3px solid #1a1a2e; padding-bottom: 12px; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .header .sub { font-size: 12px; color: #666; margin-top: 3px; }
+  .header .week { font-size: 12px; color: #666; text-align: right; }
+
+  /* KPIs */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: #fff; border-radius: 8px; padding: 14px 16px; border-left: 4px solid #1a1a2e; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .kpi .num { font-size: 28px; font-weight: 700; line-height: 1; }
+  .kpi .label { font-size: 11px; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi .detail { font-size: 10.5px; color: #888; margin-top: 5px; line-height: 1.5; }
+  .kpi.green { border-left-color: #22c55e; }
+  .kpi.blue { border-left-color: #3b82f6; }
+  .kpi.orange { border-left-color: #f59e0b; }
+  .kpi.purple { border-left-color: #8b5cf6; }
+
+  /* Legend */
+  .size-legend { margin-bottom: 16px; padding: 8px 12px; background: #fff; border-radius: 6px; display: flex; gap: 14px; flex-wrap: wrap; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .size-legend .leg-title { font-size: 10px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.4px; }
+  .size-legend span { font-size: 11px; color: #888; }
+  .size-legend strong { color: #444; }
+
+  /* Team grid */
+  .teams-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .team-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .team-header { padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; display: flex; justify-content: space-between; align-items: center; }
+  .team-header .total { font-size: 10px; font-weight: 500; opacity: 0.85; }
+  .purple-h { background: #7c3aed; color: #fff; }
+  .green-h  { background: #16a34a; color: #fff; }
+  .gallery-h { background: #0f766e; color: #fff; }
+  .qa-h     { background: #0369a1; color: #fff; }
+  .launch-h { background: #ea580c; color: #fff; }
+
+  .team-body { padding: 6px 14px 10px; }
+  .section-label { font-size: 10px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin: 10px 0 4px; border-bottom: 1px solid #f0f0f0; padding-bottom: 3px; }
+  .section-label:first-child { margin-top: 4px; }
+
+  /* Col headers */
+  .col-header { display: flex; justify-content: space-between; padding: 2px 0 3px; }
+  .col-header .ch-name { font-size: 9.5px; color: #ccc; text-transform: uppercase; letter-spacing: 0.3px; }
+  .col-header .ch-nums { display: flex; gap: 4px; }
+  .col-header .ch-col { min-width: 42px; text-align: right; font-size: 9.5px; color: #ccc; text-transform: uppercase; letter-spacing: 0.3px; }
+
+  /* Person row — accordion trigger */
+  .person-row { border-bottom: 1px solid #f5f5f5; }
+  .person-row:last-child { border-bottom: none; }
+
+  .person-trigger { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; cursor: pointer; user-select: none; }
+  .person-trigger:hover .person-name { color: #6d28d9; text-decoration: underline; }
+
+  .person-info { display: flex; align-items: baseline; gap: 5px; flex: 1; min-width: 0; }
+  .person-name { font-size: 12px; color: #333; font-weight: 500; transition: color 0.15s; }
+  .person-role { font-size: 10px; color: #ccc; }
+  .chevron { font-size: 9px; color: #bbb; margin-right: 6px; transition: transform 0.2s; display: inline-block; }
+  .chevron.open { transform: rotate(90deg); }
+
+  .person-nums { display: flex; gap: 4px; }
+  .col-val { min-width: 42px; text-align: right; font-size: 12px; }
+  .col-tasks { color: #aaa; font-weight: 400; }
+  .col-score { color: #1a1a2e; font-weight: 700; }
+  .col-score.zero { color: #ddd; font-weight: 400; }
+
+  /* Accordion content */
+  .accordion-body { display: none; background: #fafafa; border-radius: 5px; margin: 2px 0 6px; padding: 6px 10px; }
+  .accordion-body.open { display: block; }
+  .acc-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px solid #f0f0f0; }
+  .acc-row:last-child { border-bottom: none; }
+  .acc-task { font-size: 11px; color: #555; flex: 1; padding-right: 8px; }
+
+  /* Tooltip */
+  .tooltip-wrap { position: relative; cursor: default; border-bottom: 1px dashed #ccc; }
+  .tooltip-wrap:hover { color: #1a1a2e; border-bottom-color: #6d28d9; }
+  .tooltip { display: none; position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 100;
+    background: #1a1a2e; color: #fff; font-size: 10.5px; line-height: 1.5;
+    padding: 6px 10px; border-radius: 5px; white-space: normal; min-width: 180px; max-width: 280px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); pointer-events: none; }
+  .tooltip::after { content: ''; position: absolute; top: 100%; left: 12px;
+    border: 5px solid transparent; border-top-color: #1a1a2e; }
+  .tooltip-wrap:hover .tooltip { display: block; }
+  .acc-nums { display: flex; gap: 4px; }
+  .acc-count { min-width: 42px; text-align: right; font-size: 11px; color: #999; }
+  .acc-score { min-width: 42px; text-align: right; font-size: 11px; font-weight: 600; color: #444; }
+
+  .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .footer { margin-top: 20px; text-align: center; font-size: 10px; color: #bbb; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <h1>CWD Weekly Report</h1>
+      <div class="sub">Manager: Yuvraj Vaghela</div>
+    </div>
+    <div class="week">Week of May 4–10, 2026<br>Generated May 11, 2026</div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi green">
+      <div class="num">7</div>
+      <div class="label">Total Launches</div>
+      <div class="detail">5 × 2026 PGC clients<br>1 × PGC 30-Day · 1 × Renewal</div>
+    </div>
+    <div class="kpi blue">
+      <div class="num">3</div>
+      <div class="label">30-Day Launches</div>
+      <div class="detail">Johnson Psychiatry PC<br>Water's Edge Salon & Spa<br>Pelosi Medical Center</div>
+    </div>
+    <div class="kpi orange">
+      <div class="num">196</div>
+      <div class="label">Projects in Backlog</div>
+      <div class="detail">123 on-track · 73 delayed</div>
+    </div>
+    <div class="kpi purple">
+      <div class="num">3</div>
+      <div class="label">New Projects Added</div>
+      <div class="detail">Norfolk County Dental Care<br>HydraLily Wellness Co.<br>G-Man Private Investigation</div>
+    </div>
+  </div>
+
+  <div class="size-legend">
+    <span class="leg-title">Project size weights:</span>
+    <span><strong>Small</strong> ×1.0</span>
+    <span><strong>Medium</strong> ×1.5</span>
+    <span><strong>Large</strong> ×2.0</span>
+    <span><strong>X-Large</strong> ×2.5</span>
+    <span><strong>XX-Large</strong> ×3.0</span>
+    <span><strong>Unset</strong> ×1.0</span>
+    <span style="margin-left:auto; color:#bbb; font-style:italic;">Click a name to expand task detail</span>
+  </div>
+
+  <div class="teams-grid">
+
+    <!-- PURPLE POD -->
+    <div class="team-card">
+      <div class="team-header purple-h">Purple Pod <span class="total">Score: 37.5</span></div>
+      <div class="team-body">
+
+        <div class="section-label">Design</div>
+        <div class="col-header"><span class="ch-name">Name</span><div class="ch-nums"><span class="ch-col">Tasks</span><span class="ch-col">Score</span></div></div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Vignesh M</span><span class="person-role">Design Mgr</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">4</span><span class="col-val col-score">4.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Create full design comp<span class="tooltip">AesthetiSpa Cosmetic Skin & Laser Center, M.D. MedSpa & Wellness Centers</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement Comp revisions<span class="tooltip">AesthetiSpa Cosmetic Skin & Laser Center</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement OB comp QC items<span class="tooltip">AesthetiSpa Cosmetic Skin & Laser Center</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Chinmai Perabathini</span><span class="person-role">Sr. Designer</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">5</span><span class="col-val col-score">5.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Create full design comp<span class="tooltip">Kirk Eye Center, Panacea Behavioral Health & Wellness Center</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement Comp revisions<span class="tooltip">Warner Center Dental</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement PCA comp QC items<span class="tooltip">H2T Skin and Laser Center</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement comp revisions<span class="tooltip">Bruce Todd Salon</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Sai Chepuri</span><span class="person-role">Designer</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">6</span><span class="col-val col-score">6.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Create full design comp<span class="tooltip">Alchemy Aesthetics Co., Boston Center for Gynecomastia, Erin L. Doren, MD, MPH</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement PCA comp QC items<span class="tooltip">Alchemy Aesthetics Co., Erin L. Doren, MD, MPH</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement comp revisions<span class="tooltip">NeuroIntuition</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Komal Tiwari</span><span class="person-role">Designer</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">4</span><span class="col-val col-score">4.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Create full design comp<span class="tooltip">Restoration Infusions Center, Robert D. Galiano M.D.</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement PCA comp QC items<span class="tooltip">Robert D. Galiano M.D.</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production - Home Page<span class="tooltip">Danyal Nawabi MD</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Mayank Ajudiya</span><span class="person-role">Designer</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">4</span><span class="col-val col-score">4.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Create full design comp<span class="tooltip">Gentille Health and Aesthetics LLC</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement Comp revisions<span class="tooltip">Park Meadows Aesthetics</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement PCA comp QC items<span class="tooltip">McCue Plastic Surgery</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement comp revisions<span class="tooltip">EraMD Aesthetics and Wellness</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="section-label">Development</div>
+        <div class="col-header"><span class="ch-name">Name</span><div class="ch-nums"><span class="ch-col">Tasks</span><span class="ch-col">Score</span></div></div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Mayca Pavon</span><span class="person-role">Dev Lead</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">13</span><span class="col-val col-score">13.5</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Review live site for functionality risks and update R&R<span class="tooltip">Alchemy Aesthetics Co., Boston Center for Gynecomastia, G-Man Private Investigation Services, M.D. MedSpa & Wellness Centers, Panacea Behavioral Health & Wellness Center</span></span><div class="acc-nums"><span class="acc-count">5</span><span class="acc-score">5.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Complete Collaborative QC<span class="tooltip">Alchemy Medical Aesthetics, Danyal Nawabi MD, New York ENT (David Volpi)</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Review and solve risk assessment items<span class="tooltip">Alchemy Medical Aesthetics, Ashburn Laser & Skincare MedSpa, Restoration Infusions Center</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Complete collaborative QC<span class="tooltip">M.D. MedSpa & Wellness Centers, Transform Your Health: Dr. Erika Bradshaw, MD</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.5</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Grishma Fefar</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">4</span><span class="col-val col-score">5.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement site fixes<span class="tooltip">Dr. Gunyan LLC, Mitchell Thomas Salon</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production - Internal Pages 2<span class="tooltip">Danyal Nawabi MD</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production: Implement style guide & Home Page<span class="tooltip">Rizzuto Eye and Face</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Thirukumaran Selvaraj</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">1</span><span class="col-val col-score">1.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production - Internal Pages 4<span class="tooltip">Danyal Nawabi MD</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger">
+            <div class="person-info"><span class="chevron" style="visibility:hidden">▶</span><span class="person-name" style="color:#bbb">Divya Thirumurugan</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks" style="color:#ddd">—</span><span class="col-val col-score zero">—</span></div>
+          </div>
+        </div>
+        <div class="person-row">
+          <div class="person-trigger">
+            <div class="person-info"><span class="chevron" style="visibility:hidden">▶</span><span class="person-name" style="color:#bbb">Puviarasan G</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks" style="color:#ddd">—</span><span class="col-val col-score zero">—</span></div>
+          </div>
+        </div>
+        <div class="person-row">
+          <div class="person-trigger">
+            <div class="person-info"><span class="chevron" style="visibility:hidden">▶</span><span class="person-name" style="color:#bbb">Kiruthiga S</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks" style="color:#ddd">—</span><span class="col-val col-score zero">—</span></div>
+          </div>
+        </div>
+        <div class="person-row">
+          <div class="person-trigger">
+            <div class="person-info"><span class="chevron" style="visibility:hidden">▶</span><span class="person-name" style="color:#bbb">Karunya Navaneethan</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks" style="color:#ddd">—</span><span class="col-val col-score zero">—</span></div>
+          </div>
+        </div>
+        <div class="person-row">
+          <div class="person-trigger">
+            <div class="person-info"><span class="chevron" style="visibility:hidden">▶</span><span class="person-name" style="color:#bbb">Mohammad Ali Shaik</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks" style="color:#ddd">—</span><span class="col-val col-score zero">—</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- GREEN POD -->
+    <div class="team-card">
+      <div class="team-header green-h">Green Pod <span class="total">Score: 60.0</span></div>
+      <div class="team-body">
+
+        <div class="section-label">Design</div>
+        <div class="col-header"><span class="ch-name">Name</span><div class="ch-nums"><span class="ch-col">Tasks</span><span class="ch-col">Score</span></div></div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Sree Ram</span><span class="person-role">Designer</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">4</span><span class="col-val col-score">4.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Create full design comp<span class="tooltip">Ageless Skin & Laser Center, Anthony Mazzella, Ph.D.</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement OB comp QC items<span class="tooltip">Ageless Skin & Laser Center, Anthony Mazzella, Ph.D.</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Rashi Jain</span><span class="person-role">Designer</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">5</span><span class="col-val col-score">5.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Create full design comp<span class="tooltip">Advanced Orthopaedics Associates, P.A., Dermatology Associates of West Texas</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement comp revisions<span class="tooltip">Jesus Baeza OBGYN, Oum Med Spa</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement OB comp QC items<span class="tooltip">Dermatology Associates of West Texas</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Shiv Patel</span><span class="person-role">Designer</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">2</span><span class="col-val col-score">2.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Create full design comp<span class="tooltip">Intu Med Spa</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement comp revisions<span class="tooltip">Dr. Arnold S. Breitbart, MD</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="section-label">Development</div>
+        <div class="col-header"><span class="ch-name">Name</span><div class="ch-nums"><span class="ch-col">Tasks</span><span class="ch-col">Score</span></div></div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Amerah Ames</span><span class="person-role">Dev Lead</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">24</span><span class="col-val col-score">24.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Review live site for functionality risks and update R&R<span class="tooltip">Benstock Dermatology, ION Aesthetics and Medicine, Maloney Center for Facial Plastic Surgery, Tara Chadab, MD, Will Vision & Laser Centers, William Rifkin, MD</span></span><div class="acc-nums"><span class="acc-count">6</span><span class="acc-score">6.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Content Audit and Migration<span class="tooltip">Advanced Orthopaedics Associates, P.A., Ageless Skin & Laser Center, Dermatology Associates of West Texas, Nolan Karp MD, Tammy Kussman DDS</span></span><div class="acc-nums"><span class="acc-count">5</span><span class="acc-score">5.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Review and solve risk assessment items<span class="tooltip">AesthetiSpa Cosmetic Skin & Laser Center, Pedro Chavez, MD/Plastic Surgery Associates P Chavez, Tammy Kussman DDS, Tower Clock Eye Center</span></span><div class="acc-nums"><span class="acc-count">4</span><span class="acc-score">4.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Complete Collaborative QC<span class="tooltip">BRB Aesthetics Central, Between the Bridges Healing Center, Samuel Lin MD FACS</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Complete collaborative QC<span class="tooltip">Akhrass Dental Implant & Cosmetic center, YQR Dental Studio</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Final site QA revisions<span class="tooltip">Beauty WoRx, Johnson Psychiatry PC</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Full site QA revisions<span class="tooltip">Lucid Dermatology</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Post-launch QA fixes<span class="tooltip">Beauty WoRx</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Hari Krishnan</span><span class="person-role">WP Prod</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">8</span><span class="col-val col-score">8.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Final site QA revisions<span class="tooltip">Ophthalmology Associates Of Queens, Vein & Skin Studio, Water's Edge Salon & Spa</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement site fixes<span class="tooltip">Beauty WoRx, Vein & Skin Studio, Water's Edge Salon & Spa</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Full site QA revisions<span class="tooltip">Akhrass Dental Implant & Cosmetic center</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production - Internal Pages 2<span class="tooltip">Spa Sydell Integrative Aesthetics</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Gayathri Anikattu</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">5</span><span class="col-val col-score">5.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Final Site QA Revisions<span class="tooltip">Elevated Aesthetics</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Final site QA revisions<span class="tooltip">Holder Susan Slusher, LLC</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement Site Revisions<span class="tooltip">Cosmetic Surgery Specialists Of Memphis</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement site fixes<span class="tooltip">Holder Susan Slusher, LLC</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production: Implement style guide & Home Page<span class="tooltip">Jaibaji Plastic Surgery</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Harshit Jain</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">5</span><span class="col-val col-score">5.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Final site QA revisions<span class="tooltip">Dentonics, Inc, Rejeuvine Medspa</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement site fixes<span class="tooltip">Ophthalmology Associates Of Queens, Rejeuvine Medspa</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement style guide in dev site<span class="tooltip">Danyal Nawabi MD</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Tinku Kumar</span><span class="person-role">Sr. WP Dev Lead</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">2</span><span class="col-val col-score">2.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Full site QA revisions<span class="tooltip">Lenza Eye Center</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production: Implement style guide & Home Page<span class="tooltip">Spa Sydell Integrative Aesthetics</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Anjitha Sreenivasan</span><span class="person-role">WP Prod</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">2</span><span class="col-val col-score">2.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Final site QA revisions<span class="tooltip">Zdenek Eye Institute</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production - Internal Pages 2<span class="tooltip">Musick Dermatology & Advanced Clinical Spa</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Karan Kumar</span><span class="person-role">Sr. WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">1</span><span class="col-val col-score">1.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production: Implement style guide & Home Page<span class="tooltip">Samuel Lin MD FACS</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Meet Kargathiya</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">1</span><span class="col-val col-score">1.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Production: Implement style guide & Home Page<span class="tooltip">Sugar Land Hormones & Wellness</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Tanik Sarkar</span><span class="person-role">WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">1</span><span class="col-val col-score">1.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Implement Site Revisions<span class="tooltip">Law Offices of Kobrick & Moccia</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div style="margin-bottom:14px;">
+    <div class="team-card">
+      <div class="team-header gallery-h">Gallery <span class="total">Score: 11.0</span></div>
+      <div class="team-body">
+        <div class="col-header"><span class="ch-name">Name</span><div class="ch-nums"><span class="ch-col">Tasks</span><span class="ch-col">Score</span></div></div>
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Jarish Castaneda</span><span class="person-role">Gallery Specialist</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">11</span><span class="col-val col-score">11.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Populate photo gallery<span class="tooltip">Bruce Todd Salon, Laser Eye Center of Carolina, M.D. MedSpa & Wellness Centers, NeuroIntuition, Origins Primary Care at Montgomery, Reflections Dermatology</span></span><div class="acc-nums"><span class="acc-count">6</span><span class="acc-score">6.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Photo Gallery Migration<span class="tooltip">AesthetiSpa Cosmetic Skin & Laser Center, Alchemy Medical Aesthetics, Fante Eye & Face Centre, Pedro Chavez, MD/Plastic Surgery Associates P Chavez, Tammy Kussman DDS</span></span><div class="acc-nums"><span class="acc-count">5</span><span class="acc-score">5.0</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QA + LAUNCH -->
+  <div class="bottom-row">
+    <div class="team-card">
+      <div class="team-header qa-h">QA <span class="total">Score: 20.5</span></div>
+      <div class="team-body">
+        <div class="col-header"><span class="ch-name">Name</span><div class="ch-nums"><span class="ch-col">Tasks</span><span class="ch-col">Score</span></div></div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Ramkumar S</span><span class="person-role">QA Specialist</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">11</span><span class="col-val col-score">11.5</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Final site QA<span class="tooltip">Beauty WoRx, Mitchell Thomas Salon, Vein & Skin Studio, Water's Edge Salon & Spa</span></span><div class="acc-nums"><span class="acc-count">4</span><span class="acc-score">4.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Full Site QA<span class="tooltip">BRB Aesthetics Central, Donna Krummen, MD, Walter John Murrell MD</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Post-launch QA<span class="tooltip">Beauty WoRx, Pelosi Medical Center</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.5</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Full site QA<span class="tooltip">Akhrass Dental Implant & Cosmetic center</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Post-Launch QA<span class="tooltip">Elevated Aesthetics</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Archana</span><span class="person-role">QA Specialist</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">8</span><span class="col-val col-score">9.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Final site QA<span class="tooltip">Dentonics, Inc, Dr. Gunyan LLC, Holder Susan Slusher, LLC, Ophthalmology Associates Of Queens</span></span><div class="acc-nums"><span class="acc-count">4</span><span class="acc-score">5.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Post-launch QA<span class="tooltip">Water's Edge Salon & Spa, Zdenek Eye Institute</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Full Site QA<span class="tooltip">Musick Dermatology & Advanced Clinical Spa</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Full site QA<span class="tooltip">YQR Dental Studio</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <div class="team-header launch-h">Launch <span class="total">Score: 31.0</span></div>
+      <div class="team-body">
+        <div class="col-header"><span class="ch-name">Name</span><div class="ch-nums"><span class="ch-col">Tasks</span><span class="ch-col">Score</span></div></div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Ariana Dorado</span><span class="person-role">Launch Lead</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">17</span><span class="col-val col-score">17.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Pre-launch prep<span class="tooltip">Johnson Psychiatry PC, M.D. MedSpa & Wellness Centers, Ophthalmology Associates Of Queens, Rejeuvine Medspa, Vein & Skin Studio, Water's Edge Salon & Spa</span></span><div class="acc-nums"><span class="acc-count">6</span><span class="acc-score">6.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Site Launch<span class="tooltip">Alchemy Medical Aesthetics, Between the Bridges Healing Center, Johnson Psychiatry PC, M.D. MedSpa & Wellness Centers</span></span><div class="acc-nums"><span class="acc-count">4</span><span class="acc-score">4.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Tech post-launch QA<span class="tooltip">Johnson Psychiatry PC, M.D. MedSpa & Wellness Centers, Water's Edge Salon & Spa</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Pre-Launch Prep<span class="tooltip">Alchemy Medical Aesthetics, Between the Bridges Healing Center</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Tech Post-Launch QA<span class="tooltip">Alchemy Medical Aesthetics, Between the Bridges Healing Center</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+          </div>
+        </div>
+
+        <div class="person-row">
+          <div class="person-trigger" onclick="toggle(this)">
+            <div class="person-info"><span class="chevron">▶</span><span class="person-name">Michaelraj A</span><span class="person-role">Sr. WP Dev</span></div>
+            <div class="person-nums"><span class="col-val col-tasks">13</span><span class="col-val col-score">14.0</span></div>
+          </div>
+          <div class="accordion-body">
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Pre-launch prep<span class="tooltip">Beauty WoRx, Dentonics, Inc, Mitchell Thomas Salon, Pelosi Medical Center, Zdenek Eye Institute</span></span><div class="acc-nums"><span class="acc-count">5</span><span class="acc-score">5.5</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Tech post-launch QA<span class="tooltip">Beauty WoRx, Pelosi Medical Center, Zdenek Eye Institute</span></span><div class="acc-nums"><span class="acc-count">3</span><span class="acc-score">3.5</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Pre-Launch Prep<span class="tooltip">Andina Dental Studio, Elevated Aesthetics</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Tech Post-Launch QA<span class="tooltip">Andina Dental Studio, Elevated Aesthetics</span></span><div class="acc-nums"><span class="acc-count">2</span><span class="acc-score">2.0</span></div></div>
+            <div class="acc-row"><span class="acc-task tooltip-wrap">Post-launch QA fixes<span class="tooltip">Zdenek Eye Institute</span></span><div class="acc-nums"><span class="acc-count">1</span><span class="acc-score">1.0</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">CWD Report · Week of May 4–10, 2026 · Task scores weighted by project size · Generated from Planhat data</div>
+</div>
+
+<script>
+function toggle(trigger) {
+  const chevron = trigger.querySelector('.chevron');
+  const body = trigger.nextElementSibling;
+  if (!body || !body.classList.contains('accordion-body')) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+</script>
+</body>
+</html>
